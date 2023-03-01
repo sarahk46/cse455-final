@@ -24,8 +24,8 @@ skip_frames = 10
 confidence_value = 0.4
 # See if we can get data of people from diverse phenotypes
 # Talk about future work + limitations
-video_file_path = "videos/2.avi"
-output_file_path = "output/2.mov"
+video_file_path = "videos/2.mov"
+output_file_path = "output/2.avi"
 # initialize the total number of frames processed thus far, along
 # with the total number of objects that have moved either up or down
 totalFrames = 0
@@ -155,7 +155,7 @@ while True:
         # set the status and initialize our new set of object trackers
         status = "Detecting"
         trackers = []
-
+        
         # convert the frame to a blob and pass the blob through the
         # network and obtain the detections
         blob = cv2.dnn.blobFromImage(frame, 0.007843, (W, H), 127.5)
@@ -173,11 +173,15 @@ while True:
             if confidence > confidence_value:
                 # extract the index of the class label from the
                 # detections list
+                
                 idx = int(detections[0, 0, i, 1])
 
                 # if the class label is not a person, ignore it
-                if CLASSES[idx] != "person":
-                    continue
+                # if CLASSES[idx] != "person":
+                #     print("did not see as person")
+                #     continue
+                print("detected as")
+                print(CLASSES[idx])
 
                 # compute the (x, y)-coordinates of the bounding box
                 # for the object
@@ -194,6 +198,7 @@ while True:
                 # add the tracker to our list of trackers so we can
                 # utilize it during skip frames
                 trackers.append(tracker)
+                
 
     # otherwise, we should utilize our object *trackers* rather than
     # object *detectors* to obtain a higher frame processing throughput
@@ -203,6 +208,7 @@ while True:
             # set the status of our system to be 'tracking' rather
             # than 'waiting' or 'detecting'
             status = "Tracking"
+            print("tracking here")
 
             # update the tracker and grab the updated position
             tracker.update(rgb)
@@ -220,17 +226,43 @@ while True:
     # draw a horizontal line in the center of the frame -- once an
     # object crosses this line we will determine whether they were
     # moving 'up' or 'down'
-    cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
+    # cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
+    
+    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
+    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
+
+    x1 = 0
+    y1 = H // 2 - 75
+    x2 = W
+    y2 = H // 2 + 75
+
+    # top side of the rectangle
+    cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
+    # this can be a triangle -- just change one of the y-values as shown below:
+    # # cv2.line(frame, (40, H // 2 - 40), (W - 40, H // 2), (0, 255, 255), 2)
+
+    # bottom side of the rectangle
+    cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
+    # left side of the rectangle
+    # cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
+    # right side of the rectangle
+    # cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
+    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
+    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
+    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
 
     # use the centroid tracker to associate the (1) old object
     # centroids with (2) the newly computed object centroids
     objects = ct.update(rects)
+    # print("there are objects")
+    # print(objects.items())
 
     # loop over the tracked objects
     for (objectID, centroid) in objects.items():
         # check to see if a trackable object exists for the current
         # object ID
         to = trackableObjects.get(objectID, None)
+        # print("there are tracked objects")
 
         # if there is no existing trackable object, create one
         if to is None:
@@ -249,21 +281,60 @@ while True:
 
             # check to see if the object has been counted or not
             if not to.counted:
+
+                # ORIGINAL CODE BELOW
                 # if the direction is negative (indicating the object
                 # is moving up) AND the centroid is above the center
                 # line, count the object
-                if direction < 0 and centroid[1] < H // 2:
-                    totalPersonsExited += 1
+
+                # below the line to top of the line is exiting
+                # print("object has not been counted")
+                # if direction < 0 and centroid[1] < H // 2:
+                #     totalPersonsExited += 1
+                #     # countOfExited += 1
+                #     to.counted = True
+
+                # # if the direction is positive (indicating the object
+                # # is moving down) AND the centroid is below the
+                # # center line, count the object
+
+                # # top of the line to below the line is entering
+                # elif direction > 0 and centroid[1] > H // 2:
+                #     totalPersonsEntered += 1
+                #     # countOfEntered += 1
+                #     to.counted = True
+
+                # Let's apply the same logic for the bottom line...
+                if direction < 0 and (centroid[1] > y1 and centroid[1] < y2):
+                    print("got here 1")
+                    totalPersonsEntered += 1
                     # countOfExited += 1
                     to.counted = True
 
                 # if the direction is positive (indicating the object
                 # is moving down) AND the centroid is below the
                 # center line, count the object
-                elif direction > 0 and centroid[1] > H // 2:
-                    totalPersonsEntered += 1
+
+                # top of the line to below the line is entering
+                elif direction > 0 and centroid[1] > y2:
+                    print("got here 2")
+                    totalPersonsExited += 1
                     # countOfEntered += 1
                     to.counted = True
+
+                # Move up
+                # DEEBUG: Gotta figure out exiting case
+                if direction < 0 and centroid[1] < y1:
+                    print("got here 3")
+                    totalPersonsExited += 1
+                    to.counted = True
+                # Move down
+                elif direction > 0 and (centroid[1] > y1 and centroid[1] < y2):
+                    print("got here 4")
+                    totalPersonsEntered += 1
+                    to.counted = True
+
+                
 
         # store the trackable object in our dictionary
         trackableObjects[objectID] = to
