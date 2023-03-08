@@ -24,8 +24,8 @@ skip_frames = 10
 confidence_value = 0.4
 # See if we can get data of people from diverse phenotypes
 # Talk about future work + limitations
-video_file_path = "videos/2.mov"
-output_file_path = "output/2.avi"
+video_file_path = "videos/6.mov"
+output_file_path = "output/6.avi"
 # initialize the total number of frames processed thus far, along
 # with the total number of objects that have moved either up or down
 totalFrames = 0
@@ -208,7 +208,7 @@ while True:
             # set the status of our system to be 'tracking' rather
             # than 'waiting' or 'detecting'
             status = "Tracking"
-            print("tracking here")
+            # print("tracking here")
 
             # update the tracker and grab the updated position
             tracker.update(rgb)
@@ -276,11 +276,16 @@ while True:
             # us in which direction the object is moving (negative for
             # 'up' and positive for 'down')
             y = [c[1] for c in to.centroids]
-            direction = centroid[1] - np.mean(y)
+            directionY = centroid[1] - np.mean(y) # this is y direction
             to.centroids.append(centroid)
 
+            x = [c[0] for c in to.centroids]
+            directionX = centroid[0] - np.mean(x) # this is x direction
+            # to.centroids.append(centroid) # we should however append only once
+
             # check to see if the object has been counted or not
-            if not to.counted:
+            # if not to.counted:
+            if not (to.entered):
 
                 # ORIGINAL CODE BELOW
                 # if the direction is negative (indicating the object
@@ -305,34 +310,76 @@ while True:
                 #     to.counted = True
 
                 # Let's apply the same logic for the bottom line...
-                if direction < 0 and (centroid[1] > y1 and centroid[1] < y2):
-                    print("got here 1")
-                    totalPersonsEntered += 1
-                    # countOfExited += 1
-                    to.counted = True
+                
+                if directionY < 0: # moving up
+                    # print("moving up")
+                    if (centroid[1] > y1 and centroid[1] < y2):
+                        print("got here 1")
+                        
+                        totalPersonsEntered += 1
+                        # to.counted = True
+                        to.entered = True
+                    # elif (centroid[1] < y1):
+                    #     print("got here 2")
+                    #     totalPersonsExited += 1
+                    #     # to.counted = True
+                    #     to.exited = True
+                elif directionY > 0: # moving down
+                    # if (centroid[1] > y2):
+                    #     print("got here 3")
+                    #     totalPersonsExited += 1
+                    #     # to.counted = True
+                    #     to.exited = True
+                    if (centroid[1] > y1 and centroid[1] < y2):
+                        print("got here 4")
+                        totalPersonsEntered += 1
+                        # to.counted = True
+                        to.entered = True
+            if not (to.exited):
+                if directionY > 0: # moving down
+                    if (centroid[1] > y2):
+                        print("got here 3")
+                        totalPersonsExited += 1
+                        # to.counted = Tru
+                        to.exited = True
+                elif directionY < 0:
+                    if (centroid[1] < y1):
+                        print("got here 2")
+                        totalPersonsExited += 1
+                        # to.counted = True
+                        to.exited = True
 
-                # if the direction is positive (indicating the object
-                # is moving down) AND the centroid is below the
-                # center line, count the object
 
-                # top of the line to below the line is entering
-                elif direction > 0 and centroid[1] > y2:
-                    print("got here 2")
-                    totalPersonsExited += 1
-                    # countOfEntered += 1
-                    to.counted = True
 
-                # Move up
-                # DEEBUG: Gotta figure out exiting case
-                if direction < 0 and centroid[1] < y1:
-                    print("got here 3")
-                    totalPersonsExited += 1
-                    to.counted = True
-                # Move down
-                elif direction > 0 and (centroid[1] > y1 and centroid[1] < y2):
-                    print("got here 4")
-                    totalPersonsEntered += 1
-                    to.counted = True
+
+                # if direction < 0 and (centroid[1] > y1 and centroid[1] < y2):
+                #     print("got here 1")
+                #     totalPersonsEntered += 1
+                #     # countOfExited += 1
+                #     to.counted = True
+
+                # # if the direction is positive (indicating the object
+                # # is moving down) AND the centroid is below the
+                # # center line, count the object
+
+                # # top of the line to below the line is entering
+                # elif direction > 0 and centroid[1] > y2:
+                #     print("got here 2")
+                #     totalPersonsExited += 1
+                #     # countOfEntered += 1
+                #     to.counted = True
+
+                # # Move up
+                # # DEEBUG: Gotta figure out exiting case
+                # if direction < 0 and centroid[1] < y1:
+                #     print("got here 3")
+                #     totalPersonsExited += 1
+                #     to.counted = True
+                # # Move down
+                # elif direction > 0 and (centroid[1] > y1 and centroid[1] < y2):
+                #     print("got here 4")
+                #     totalPersonsEntered += 1
+                #     to.counted = True
 
                 
 
