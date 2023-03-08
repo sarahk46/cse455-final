@@ -177,9 +177,9 @@ while True:
                 idx = int(detections[0, 0, i, 1])
 
                 # if the class label is not a person, ignore it
-                # if CLASSES[idx] != "person":
-                #     print("did not see as person")
-                #     continue
+                if CLASSES[idx] != "person":
+                    print("did not see as person")
+                    continue
                 print("detected as")
                 print(CLASSES[idx])
 
@@ -244,9 +244,9 @@ while True:
     # bottom side of the rectangle
     cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
     # left side of the rectangle
-    # cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
+    cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
     # right side of the rectangle
-    # cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
+    cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
     # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
     # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
     # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
@@ -286,6 +286,8 @@ while True:
             # check to see if the object has been counted or not
             # if not to.counted:
             if not (to.entered):
+                print('entering')
+                print(objectID)
 
                 # ORIGINAL CODE BELOW
                 # if the direction is negative (indicating the object
@@ -335,6 +337,12 @@ while True:
                         totalPersonsEntered += 1
                         # to.counted = True
                         to.entered = True
+                elif directionX > 0 or directionX < 0: # moving right or moving left
+                    if (centroid[0] > x1 and centroid[0] < x2):
+                        print("entered horizontally")
+                        totalPersonsEntered += 1
+                        to.entered = True
+                
             if not (to.exited):
                 if directionY > 0: # moving down
                     if (centroid[1] > y2):
@@ -347,6 +355,16 @@ while True:
                         print("got here 2")
                         totalPersonsExited += 1
                         # to.counted = True
+                        to.exited = True
+                elif directionX < 0: # moving left
+                    if (centroid[0] < x1):
+                        print("exiting horizontally")
+                        totalPersonsExited += 1
+                        to.exited = True
+                elif directionX > 0:
+                    if (centroid[0] > x2):
+                        print("exiting horizontally")
+                        totalPersonsExited += 1
                         to.exited = True
 
 
