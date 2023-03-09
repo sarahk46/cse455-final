@@ -24,51 +24,19 @@ skip_frames = 10
 confidence_value = 0.4
 # See if we can get data of people from diverse phenotypes
 # Talk about future work + limitations
-video_file_path = "videos/2.avi"
-output_file_path = "output/2.mov"
+video_file_path = "videos/4.mov"
+output_file_path = "output/4.avi"
 # initialize the total number of frames processed thus far, along
 # with the total number of objects that have moved either up or down
 totalFrames = 0
 totalPersonsEntered = 0
 totalPersonsExited = 0
 
-
-# Email Sending Function
-# def sendEmail(start, end, in0, out0):
-#     port = 465  # For SSL
-#     password = "Password212"
-#     sender_email = 'peoplecounter.saudfin@gmail.com'
-#     receiver_email = ['peoplecounter.saudfin@gmail.com']
-#     subject = 'People Counting System'
-#     s_time = start.strftime('%m/%d/%Y %H:%M:%S')
-#     e_time = end.strftime('%m/%d/%Y %H:%M:%S')
-#     body = """
-#     Number of people who exited and entered between %s and %s  are %d and %d.
-#     """ % (s_time, e_time, in0, out0)
-#     # Create a secure SSL context
-#     context = ssl.create_default_context()
-
-#     with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-#         server.login(sender_email, password)
-#     email_text = """\ 
-#     From: %s  
-#     To: %s  
-#     Subject: %s
-    
-#     %s
-#     """ % (sender_email, ", ".join(receiver_email), subject, body)
-
-#     try:
-#         server = smtplib.SMTP_SSL('smtp.gmail.com', port)
-#         server.ehlo()
-#         server.login(sender_email, password)
-#         server.sendmail(sender_email, receiver_email, email_text)
-#         server.close()
-#         print('Email successfully sent to ', receiver_email, '!')
-#         startTime = datetime.datetime.now()
-#     except Exception:
-#         print('Something went wrong...')
-
+# User input:
+# Ask if they want a box at a specific size
+# - Kid in crib for example:
+# - Which pixel you want as the center?
+# 4 end points is most easiest
 
 # initialize the list of class labels MobileNet SSD was trained to
 # detect
@@ -114,12 +82,62 @@ fps = FPS().start()
 # Start Time
 startTime = datetime.datetime.now()
 
+center = input("Enter the center (x,y) pixel coordinate for the bounding box (make sure to use a comma in-between x and y): ")
+x_str, y_str = center[1:-1].split(",")
+cx = int(x_str)
+cy = int(y_str)
+
+width = int(input("Please enter the width of the bounding box: "))
+height = int(input("Please enter the height of the bounding box: "))
+
+
+# x1 = int(input("Please enter the x-value for the LEFT side: "))
+# x2 = int(input("Please enter the x-value for the RIGHT side: "))
+# y1 = int(input("Please enter the y-value for the TOP side: "))
+# y2 = int(input("Please enter the y-value for the BOTTOM side: "))
+x1 = cx - width // 2
+x2 = cx + width // 2
+y1 = cy - height // 2
+y2 = cy + height // 2
+# print("intial x1: " + str(x1))
+# print("intial x2: " + str(x2))
+# print("intial y1: " + str(y1))
+# print("intial y2: " + str(y2))
+
+
 # loop over frames from the video stream
 while True:
     # grab the next frame and handle if we are reading from either
     # VideoCapture or VideoStream
     frame = vs.read()
     frame = frame[1]
+
+    # x1 = 0
+    # # y1 = H // 2 - 75
+    # y1 = 200
+    # x2 = 200
+    # y2 = 350
+    # # y2 = H // 2 + 75
+
+    # x1 = 100
+    # x2 = 200
+    # y1 = 100
+    # y2 = 200
+    
+    # x1 = int(input("Please enter the x-value for the LEFT side: "))
+    # x2 = int(input("Please enter the x-value for the RIGHT side: "))
+    # y1 = int(input("Please enter the y-value for the TOP side: "))
+    # y2 = int(input("Please enter the y-value for the BOTTOM side: "))
+
+    # top side of the rectangle
+    cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
+
+    # bottom side of the rectangle
+    cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
+    # left side of the rectangle
+    cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
+    # right side of the rectangle
+    cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
 
     # if we are viewing a video and we did not grab a frame then we
     # have reached the end of the video
@@ -155,7 +173,7 @@ while True:
         # set the status and initialize our new set of object trackers
         status = "Detecting"
         trackers = []
-
+        
         # convert the frame to a blob and pass the blob through the
         # network and obtain the detections
         blob = cv2.dnn.blobFromImage(frame, 0.007843, (W, H), 127.5)
@@ -173,11 +191,15 @@ while True:
             if confidence > confidence_value:
                 # extract the index of the class label from the
                 # detections list
+                
                 idx = int(detections[0, 0, i, 1])
 
                 # if the class label is not a person, ignore it
                 if CLASSES[idx] != "person":
+                    print("did not see as person")
                     continue
+                print("detected as")
+                print(CLASSES[idx])
 
                 # compute the (x, y)-coordinates of the bounding box
                 # for the object
@@ -194,6 +216,7 @@ while True:
                 # add the tracker to our list of trackers so we can
                 # utilize it during skip frames
                 trackers.append(tracker)
+                
 
     # otherwise, we should utilize our object *trackers* rather than
     # object *detectors* to obtain a higher frame processing throughput
@@ -203,6 +226,7 @@ while True:
             # set the status of our system to be 'tracking' rather
             # than 'waiting' or 'detecting'
             status = "Tracking"
+            # print("tracking here")
 
             # update the tracker and grab the updated position
             tracker.update(rgb)
@@ -220,17 +244,45 @@ while True:
     # draw a horizontal line in the center of the frame -- once an
     # object crosses this line we will determine whether they were
     # moving 'up' or 'down'
-    cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
+    # cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
+    
+    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
+    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
+    # x1 = int(input("Please enter the x-value for the LEFT side: "))
+    # x2 = int(input("Please enter the x-value for the RIGHT side: "))
+    # y1 = int(input("Please enter the y-value for the TOP side: "))
+    # y2 = int(input("Please enter the y-value for the BOTTOM side: "))
+
+    # x1 = 0
+    # y1 = H // 2 - 75
+    # x2 = W
+    # y2 = H // 2 + 75
+
+    # # top side of the rectangle
+    # cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
+
+    # # # bottom side of the rectangle
+    # cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
+    # # # left side of the rectangle
+    # cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
+    # # # right side of the rectangle
+    # cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
+    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
+    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
+    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
 
     # use the centroid tracker to associate the (1) old object
     # centroids with (2) the newly computed object centroids
     objects = ct.update(rects)
+    # print("there are objects")
+    # print(objects.items())
 
     # loop over the tracked objects
     for (objectID, centroid) in objects.items():
         # check to see if a trackable object exists for the current
         # object ID
         to = trackableObjects.get(objectID, None)
+        # print("there are tracked objects")
 
         # if there is no existing trackable object, create one
         if to is None:
@@ -244,26 +296,136 @@ while True:
             # us in which direction the object is moving (negative for
             # 'up' and positive for 'down')
             y = [c[1] for c in to.centroids]
-            direction = centroid[1] - np.mean(y)
+            directionY = centroid[1] - np.mean(y) # this is y direction
             to.centroids.append(centroid)
 
+            x = [c[0] for c in to.centroids]
+            directionX = centroid[0] - np.mean(x) # this is x direction
+            # to.centroids.append(centroid) # we should however append only once
+
             # check to see if the object has been counted or not
-            if not to.counted:
+            # if not to.counted:
+            if not (to.entered):
+                print('entering')
+                print(objectID)
+
+                # ORIGINAL CODE BELOW
                 # if the direction is negative (indicating the object
                 # is moving up) AND the centroid is above the center
                 # line, count the object
-                if direction < 0 and centroid[1] < H // 2:
-                    totalPersonsExited += 1
-                    # countOfExited += 1
-                    to.counted = True
 
-                # if the direction is positive (indicating the object
-                # is moving down) AND the centroid is below the
-                # center line, count the object
-                elif direction > 0 and centroid[1] > H // 2:
-                    totalPersonsEntered += 1
-                    # countOfEntered += 1
-                    to.counted = True
+                # below the line to top of the line is exiting
+                # print("object has not been counted")
+                # if direction < 0 and centroid[1] < H // 2:
+                #     totalPersonsExited += 1
+                #     # countOfExited += 1
+                #     to.counted = True
+
+                # # if the direction is positive (indicating the object
+                # # is moving down) AND the centroid is below the
+                # # center line, count the object
+
+                # # top of the line to below the line is entering
+                # elif direction > 0 and centroid[1] > H // 2:
+                #     totalPersonsEntered += 1
+                #     # countOfEntered += 1
+                #     to.counted = True
+
+                # Let's apply the same logic for the bottom line...
+                
+                if directionY < 0: # moving up
+                    # print("moving up")
+                    if (centroid[1] > y1 and centroid[1] < y2 and centroid[0] > x1 and centroid[0] < x2):
+                        print("got here 1")
+                        
+                        totalPersonsEntered += 1
+                        # to.counted = True
+                        to.entered = True
+                    # elif (centroid[1] < y1):
+                    #     print("got here 2")
+                    #     totalPersonsExited += 1
+                    #     # to.counted = True
+                    #     to.exited = True
+                elif directionY > 0: # moving down
+                    # if (centroid[1] > y2):
+                    #     print("got here 3")
+                    #     totalPersonsExited += 1
+                    #     # to.counted = True
+                    #     to.exited = True
+                    if (centroid[1] > y1 and centroid[1] < y2 and centroid[0] > x1 and centroid[0] < x2):
+                        print("x: " + str(centroid[0]))
+                        print("y: " + str(centroid[0]))
+                        print("actual x1: " + str(x1))
+                        print("actual x2: " + str(x2))
+                        print("actual y1: " + str(y1))
+                        print("actual y2: " + str(y2))
+                        print("got here 4")
+                        totalPersonsEntered += 1
+                        # to.counted = True
+                        to.entered = True
+                elif directionX > 0 or directionX < 0: # moving right or moving left
+                    if (centroid[0] > x1 and centroid[0] < x2 and centroid[1] > y1 and centroid[1] < y2):
+                        print("entered horizontally")
+                        totalPersonsEntered += 1
+                        to.entered = True
+                
+            if not (to.exited):
+                if directionY > 0: # moving down
+                    if (centroid[1] > y2 and centroid[0] > x1 and centroid[0] < x2):
+                        print("got here 3")
+                        totalPersonsExited += 1
+                        # to.counted = Tru
+                        to.exited = True
+                elif directionY < 0:
+                    if (centroid[1] < y1 and centroid[0] > x1 and centroid[0] < x2):
+                        print("got here 2")
+                        totalPersonsExited += 1
+                        # to.counted = True
+                        to.exited = True
+                elif directionX < 0: # moving left
+                    if (centroid[0] < x1 and centroid[1] > y1 and centroid[1] < y2):
+                        print("exiting horizontally")
+                        totalPersonsExited += 1
+                        to.exited = True
+                elif directionX > 0:
+                    if (centroid[0] > x2 and centroid[1] > y1 and centroid[1] < y2):
+                        print("exiting horizontally")
+                        totalPersonsExited += 1
+                        to.exited = True
+
+
+
+
+                # if direction < 0 and (centroid[1] > y1 and centroid[1] < y2):
+                #     print("got here 1")
+                #     totalPersonsEntered += 1
+                #     # countOfExited += 1
+                #     to.counted = True
+
+                # # if the direction is positive (indicating the object
+                # # is moving down) AND the centroid is below the
+                # # center line, count the object
+
+                # # top of the line to below the line is entering
+                # elif direction > 0 and centroid[1] > y2:
+                #     print("got here 2")
+                #     totalPersonsExited += 1
+                #     # countOfEntered += 1
+                #     to.counted = True
+
+                # # Move up
+                # # DEEBUG: Gotta figure out exiting case
+                # if direction < 0 and centroid[1] < y1:
+                #     print("got here 3")
+                #     totalPersonsExited += 1
+                #     to.counted = True
+                # # Move down
+                # elif direction > 0 and (centroid[1] > y1 and centroid[1] < y2):
+                #     print("got here 4")
+                #     totalPersonsEntered += 1
+                #     to.counted = True
+
+                
 
         # store the trackable object in our dictionary
         trackableObjects[objectID] = to
