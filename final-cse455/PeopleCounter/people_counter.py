@@ -82,10 +82,10 @@ fps = FPS().start()
 # Start Time
 startTime = datetime.datetime.now()
 
-# x1 = 0
-# y1 = H // 2 - 75
-# x2 = W
-# y2 = H // 2 + 75
+x1 = int(input("Please enter the x-value for the LEFT side: "))
+x2 = int(input("Please enter the x-value for the RIGHT side: "))
+y1 = int(input("Please enter the y-value for the TOP side: "))
+y2 = int(input("Please enter the y-value for the BOTTOM side: "))
 
 # loop over frames from the video stream
 while True:
@@ -100,16 +100,21 @@ while True:
     # x2 = 200
     # y2 = 350
     # # y2 = H // 2 + 75
+    
+    # x1 = int(input("Please enter the x-value for the LEFT side: "))
+    # x2 = int(input("Please enter the x-value for the RIGHT side: "))
+    # y1 = int(input("Please enter the y-value for the TOP side: "))
+    # y2 = int(input("Please enter the y-value for the BOTTOM side: "))
 
-    # # top side of the rectangle
-    # cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
+    # top side of the rectangle
+    cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
 
-    # # bottom side of the rectangle
-    # cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
-    # # left side of the rectangle
-    # cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
-    # # right side of the rectangle
-    # cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
+    # bottom side of the rectangle
+    cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
+    # left side of the rectangle
+    cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
+    # right side of the rectangle
+    cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
 
     # if we are viewing a video and we did not grab a frame then we
     # have reached the end of the video
@@ -225,20 +230,20 @@ while True:
     # y1 = int(input("Please enter the y-value for the TOP side: "))
     # y2 = int(input("Please enter the y-value for the BOTTOM side: "))
 
-    x1 = 0
-    y1 = H // 2 - 75
-    x2 = W
-    y2 = H // 2 + 75
+    # x1 = 0
+    # y1 = H // 2 - 75
+    # x2 = W
+    # y2 = H // 2 + 75
 
     # # top side of the rectangle
-    cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
+    # cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
 
-    # # bottom side of the rectangle
-    cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
-    # # left side of the rectangle
-    cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
-    # # right side of the rectangle
-    cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
+    # # # bottom side of the rectangle
+    # cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
+    # # # left side of the rectangle
+    # cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
+    # # # right side of the rectangle
+    # cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
     # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
     # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
     # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
