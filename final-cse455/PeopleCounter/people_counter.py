@@ -118,6 +118,11 @@ while True:
     # x2 = 200
     # y2 = 350
     # # y2 = H // 2 + 75
+
+    # x1 = 100
+    # x2 = 200
+    # y1 = 100
+    # y2 = 200
     
     # x1 = int(input("Please enter the x-value for the LEFT side: "))
     # x2 = int(input("Please enter the x-value for the RIGHT side: "))
