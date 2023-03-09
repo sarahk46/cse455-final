@@ -82,10 +82,28 @@ fps = FPS().start()
 # Start Time
 startTime = datetime.datetime.now()
 
-x1 = int(input("Please enter the x-value for the LEFT side: "))
-x2 = int(input("Please enter the x-value for the RIGHT side: "))
-y1 = int(input("Please enter the y-value for the TOP side: "))
-y2 = int(input("Please enter the y-value for the BOTTOM side: "))
+center = input("Enter the center (x,y) pixel coordinate for the bounding box (make sure to use a comma in-between x and y): ")
+x_str, y_str = center[1:-1].split(",")
+cx = int(x_str)
+cy = int(y_str)
+
+width = int(input("Please enter the width of the bounding box: "))
+height = int(input("Please enter the height of the bounding box: "))
+
+
+# x1 = int(input("Please enter the x-value for the LEFT side: "))
+# x2 = int(input("Please enter the x-value for the RIGHT side: "))
+# y1 = int(input("Please enter the y-value for the TOP side: "))
+# y2 = int(input("Please enter the y-value for the BOTTOM side: "))
+x1 = cx - width // 2
+x2 = cx + width // 2
+y1 = cy - height // 2
+y2 = cy + height // 2
+# print("intial x1: " + str(x1))
+# print("intial x2: " + str(x2))
+# print("intial y1: " + str(y1))
+# print("intial y2: " + str(y2))
+
 
 # loop over frames from the video stream
 while True:
@@ -329,7 +347,13 @@ while True:
                     #     totalPersonsExited += 1
                     #     # to.counted = True
                     #     to.exited = True
-                    if (centroid[1] > y1 and centroid[1] < y2 and centroid[1] > x1 and centroid[1] < x2):
+                    if (centroid[1] > y1 and centroid[1] < y2 and centroid[0] > x1 and centroid[0] < x2):
+                        print("x: " + str(centroid[0]))
+                        print("y: " + str(centroid[0]))
+                        print("actual x1: " + str(x1))
+                        print("actual x2: " + str(x2))
+                        print("actual y1: " + str(y1))
+                        print("actual y2: " + str(y2))
                         print("got here 4")
                         totalPersonsEntered += 1
                         # to.counted = True
