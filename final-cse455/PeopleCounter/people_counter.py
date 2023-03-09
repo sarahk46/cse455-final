@@ -24,13 +24,19 @@ skip_frames = 10
 confidence_value = 0.4
 # See if we can get data of people from diverse phenotypes
 # Talk about future work + limitations
-video_file_path = "videos/6.mov"
-output_file_path = "output/6.avi"
+video_file_path = "videos/4.mov"
+output_file_path = "output/4.avi"
 # initialize the total number of frames processed thus far, along
 # with the total number of objects that have moved either up or down
 totalFrames = 0
 totalPersonsEntered = 0
 totalPersonsExited = 0
+
+# User input:
+# Ask if they want a box at a specific size
+# - Kid in crib for example:
+# - Which pixel you want as the center?
+# 4 end points is most easiest
 
 # initialize the list of class labels MobileNet SSD was trained to
 # detect
@@ -76,12 +82,34 @@ fps = FPS().start()
 # Start Time
 startTime = datetime.datetime.now()
 
+# x1 = 0
+# y1 = H // 2 - 75
+# x2 = W
+# y2 = H // 2 + 75
+
 # loop over frames from the video stream
 while True:
     # grab the next frame and handle if we are reading from either
     # VideoCapture or VideoStream
     frame = vs.read()
     frame = frame[1]
+
+    # x1 = 0
+    # # y1 = H // 2 - 75
+    # y1 = 200
+    # x2 = 200
+    # y2 = 350
+    # # y2 = H // 2 + 75
+
+    # # top side of the rectangle
+    # cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
+
+    # # bottom side of the rectangle
+    # cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
+    # # left side of the rectangle
+    # cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
+    # # right side of the rectangle
+    # cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
 
     # if we are viewing a video and we did not grab a frame then we
     # have reached the end of the video
@@ -192,22 +220,24 @@ while True:
     
     # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
     # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
+    # x1 = int(input("Please enter the x-value for the LEFT side: "))
+    # x2 = int(input("Please enter the x-value for the RIGHT side: "))
+    # y1 = int(input("Please enter the y-value for the TOP side: "))
+    # y2 = int(input("Please enter the y-value for the BOTTOM side: "))
 
     x1 = 0
     y1 = H // 2 - 75
     x2 = W
     y2 = H // 2 + 75
 
-    # top side of the rectangle
+    # # top side of the rectangle
     cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
-    # this can be a triangle -- just change one of the y-values as shown below:
-    # # cv2.line(frame, (40, H // 2 - 40), (W - 40, H // 2), (0, 255, 255), 2)
 
-    # bottom side of the rectangle
+    # # bottom side of the rectangle
     cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
-    # left side of the rectangle
+    # # left side of the rectangle
     cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
-    # right side of the rectangle
+    # # right side of the rectangle
     cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
     # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
     # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
@@ -277,7 +307,7 @@ while True:
                 
                 if directionY < 0: # moving up
                     # print("moving up")
-                    if (centroid[1] > y1 and centroid[1] < y2):
+                    if (centroid[1] > y1 and centroid[1] < y2 and centroid[0] > x1 and centroid[0] < x2):
                         print("got here 1")
                         
                         totalPersonsEntered += 1
@@ -294,37 +324,37 @@ while True:
                     #     totalPersonsExited += 1
                     #     # to.counted = True
                     #     to.exited = True
-                    if (centroid[1] > y1 and centroid[1] < y2):
+                    if (centroid[1] > y1 and centroid[1] < y2 and centroid[1] > x1 and centroid[1] < x2):
                         print("got here 4")
                         totalPersonsEntered += 1
                         # to.counted = True
                         to.entered = True
                 elif directionX > 0 or directionX < 0: # moving right or moving left
-                    if (centroid[0] > x1 and centroid[0] < x2):
+                    if (centroid[0] > x1 and centroid[0] < x2 and centroid[1] > y1 and centroid[1] < y2):
                         print("entered horizontally")
                         totalPersonsEntered += 1
                         to.entered = True
                 
             if not (to.exited):
                 if directionY > 0: # moving down
-                    if (centroid[1] > y2):
+                    if (centroid[1] > y2 and centroid[0] > x1 and centroid[0] < x2):
                         print("got here 3")
                         totalPersonsExited += 1
                         # to.counted = Tru
                         to.exited = True
                 elif directionY < 0:
-                    if (centroid[1] < y1):
+                    if (centroid[1] < y1 and centroid[0] > x1 and centroid[0] < x2):
                         print("got here 2")
                         totalPersonsExited += 1
                         # to.counted = True
                         to.exited = True
                 elif directionX < 0: # moving left
-                    if (centroid[0] < x1):
+                    if (centroid[0] < x1 and centroid[1] > y1 and centroid[1] < y2):
                         print("exiting horizontally")
                         totalPersonsExited += 1
                         to.exited = True
                 elif directionX > 0:
-                    if (centroid[0] > x2):
+                    if (centroid[0] > x2 and centroid[1] > y1 and centroid[1] < y2):
                         print("exiting horizontally")
                         totalPersonsExited += 1
                         to.exited = True
