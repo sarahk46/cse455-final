@@ -32,44 +32,6 @@ totalFrames = 0
 totalPersonsEntered = 0
 totalPersonsExited = 0
 
-
-# Email Sending Function
-# def sendEmail(start, end, in0, out0):
-#     port = 465  # For SSL
-#     password = "Password212"
-#     sender_email = 'peoplecounter.saudfin@gmail.com'
-#     receiver_email = ['peoplecounter.saudfin@gmail.com']
-#     subject = 'People Counting System'
-#     s_time = start.strftime('%m/%d/%Y %H:%M:%S')
-#     e_time = end.strftime('%m/%d/%Y %H:%M:%S')
-#     body = """
-#     Number of people who exited and entered between %s and %s  are %d and %d.
-#     """ % (s_time, e_time, in0, out0)
-#     # Create a secure SSL context
-#     context = ssl.create_default_context()
-
-#     with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-#         server.login(sender_email, password)
-#     email_text = """\ 
-#     From: %s  
-#     To: %s  
-#     Subject: %s
-    
-#     %s
-#     """ % (sender_email, ", ".join(receiver_email), subject, body)
-
-#     try:
-#         server = smtplib.SMTP_SSL('smtp.gmail.com', port)
-#         server.ehlo()
-#         server.login(sender_email, password)
-#         server.sendmail(sender_email, receiver_email, email_text)
-#         server.close()
-#         print('Email successfully sent to ', receiver_email, '!')
-#         startTime = datetime.datetime.now()
-#     except Exception:
-#         print('Something went wrong...')
-
-
 # initialize the list of class labels MobileNet SSD was trained to
 # detect
 CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
