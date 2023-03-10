@@ -82,27 +82,9 @@ fps = FPS().start()
 # Start Time
 startTime = datetime.datetime.now()
 
-center = input("Enter the center (x,y) pixel coordinate for the bounding box (make sure to use a comma in-between x and y): ")
-x_str, y_str = center[1:-1].split(",")
-cx = int(x_str)
-cy = int(y_str)
-
+print('Given that both the width and height of the video are 500')
 width = int(input("Please enter the width of the bounding box: "))
 height = int(input("Please enter the height of the bounding box: "))
-
-
-# x1 = int(input("Please enter the x-value for the LEFT side: "))
-# x2 = int(input("Please enter the x-value for the RIGHT side: "))
-# y1 = int(input("Please enter the y-value for the TOP side: "))
-# y2 = int(input("Please enter the y-value for the BOTTOM side: "))
-x1 = cx - width // 2
-x2 = cx + width // 2
-y1 = cy - height // 2
-y2 = cy + height // 2
-# print("intial x1: " + str(x1))
-# print("intial x2: " + str(x2))
-# print("intial y1: " + str(y1))
-# print("intial y2: " + str(y2))
 
 
 # loop over frames from the video stream
@@ -112,23 +94,37 @@ while True:
     frame = vs.read()
     frame = frame[1]
 
-    # x1 = 0
-    # # y1 = H // 2 - 75
-    # y1 = 200
-    # x2 = 200
-    # y2 = 350
-    # # y2 = H // 2 + 75
+    # if we are viewing a video and we did not grab a frame then we
+    # have reached the end of the video
+    if frame is None:
+        break
 
-    # x1 = 100
-    # x2 = 200
-    # y1 = 100
-    # y2 = 200
+    # resize the frame to have a maximum width of 500 pixels (the
+    # less data we have, the faster we can process it), then convert
+    # the frame from BGR to RGB for dlib
+    frame = imutils.resize(frame, width=500, height=500)
+    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+    # if the frame dimensions are empty, set them
+    if W is None or H is None:
+        (H, W) = frame.shape[:2]
+
+    x1 = W // 2 - (width // 2)
+    if (x1 < 0):
+        x1 = 0
     
-    # x1 = int(input("Please enter the x-value for the LEFT side: "))
-    # x2 = int(input("Please enter the x-value for the RIGHT side: "))
-    # y1 = int(input("Please enter the y-value for the TOP side: "))
-    # y2 = int(input("Please enter the y-value for the BOTTOM side: "))
-
+    x2 = W // 2 + (width // 2)
+    if (x2 > W):
+        x2 = W
+    
+    y1 = H // 2 - (height // 2)
+    if (y1 < 0):
+        y1 = 0
+    
+    y2 = H // 2 + (height // 2)
+    if (y2 > H):
+        y2 = H
+    
     # top side of the rectangle
     cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
 
@@ -138,21 +134,6 @@ while True:
     cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
     # right side of the rectangle
     cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
-
-    # if we are viewing a video and we did not grab a frame then we
-    # have reached the end of the video
-    if frame is None:
-        break
-
-    # resize the frame to have a maximum width of 500 pixels (the
-    # less data we have, the faster we can process it), then convert
-    # the frame from BGR to RGB for dlib
-    frame = imutils.resize(frame, width=500)
-    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    # if the frame dimensions are empty, set them
-    if W is None or H is None:
-        (H, W) = frame.shape[:2]
 
     # if we are supposed to be writing a video to disk, initialize
     # the writer
@@ -241,36 +222,6 @@ while True:
             # add the bounding box coordinates to the rectangles list
             rects.append((startX, startY, endX, endY))
 
-    # draw a horizontal line in the center of the frame -- once an
-    # object crosses this line we will determine whether they were
-    # moving 'up' or 'down'
-    # cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
-    
-    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
-    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
-    # x1 = int(input("Please enter the x-value for the LEFT side: "))
-    # x2 = int(input("Please enter the x-value for the RIGHT side: "))
-    # y1 = int(input("Please enter the y-value for the TOP side: "))
-    # y2 = int(input("Please enter the y-value for the BOTTOM side: "))
-
-    # x1 = 0
-    # y1 = H // 2 - 75
-    # x2 = W
-    # y2 = H // 2 + 75
-
-    # # top side of the rectangle
-    # cv2.line(frame, (x1, y1), (x2, y1), (0, 255, 255), 2)
-
-    # # # bottom side of the rectangle
-    # cv2.line(frame, (x1, y2), (x2, y2), (0, 255, 255), 2)
-    # # # left side of the rectangle
-    # cv2.line(frame, (x1, y1), (x1, y2), (0, 255, 255), 2)
-    # # # right side of the rectangle
-    # cv2.line(frame, (x2, y1), (x2, y2), (0, 255, 255), 2)
-    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
-    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
-    # cv2.line(frame, (W / 2, 0), (W / 2, ), (0, 255, 255), 2)
-
     # use the centroid tracker to associate the (1) old object
     # centroids with (2) the newly computed object centroids
     objects = ct.update(rects)
@@ -308,124 +259,38 @@ while True:
             if not (to.entered):
                 print('entering')
                 print(objectID)
-
-                # ORIGINAL CODE BELOW
-                # if the direction is negative (indicating the object
-                # is moving up) AND the centroid is above the center
-                # line, count the object
-
-                # below the line to top of the line is exiting
-                # print("object has not been counted")
-                # if direction < 0 and centroid[1] < H // 2:
-                #     totalPersonsExited += 1
-                #     # countOfExited += 1
-                #     to.counted = True
-
-                # # if the direction is positive (indicating the object
-                # # is moving down) AND the centroid is below the
-                # # center line, count the object
-
-                # # top of the line to below the line is entering
-                # elif direction > 0 and centroid[1] > H // 2:
-                #     totalPersonsEntered += 1
-                #     # countOfEntered += 1
-                #     to.counted = True
-
-                # Let's apply the same logic for the bottom line...
                 
                 if directionY < 0: # moving up
-                    # print("moving up")
                     if (centroid[1] > y1 and centroid[1] < y2 and centroid[0] > x1 and centroid[0] < x2):
-                        print("got here 1")
-                        
                         totalPersonsEntered += 1
-                        # to.counted = True
                         to.entered = True
-                    # elif (centroid[1] < y1):
-                    #     print("got here 2")
-                    #     totalPersonsExited += 1
-                    #     # to.counted = True
-                    #     to.exited = True
                 elif directionY > 0: # moving down
-                    # if (centroid[1] > y2):
-                    #     print("got here 3")
-                    #     totalPersonsExited += 1
-                    #     # to.counted = True
-                    #     to.exited = True
                     if (centroid[1] > y1 and centroid[1] < y2 and centroid[0] > x1 and centroid[0] < x2):
-                        print("x: " + str(centroid[0]))
-                        print("y: " + str(centroid[0]))
-                        print("actual x1: " + str(x1))
-                        print("actual x2: " + str(x2))
-                        print("actual y1: " + str(y1))
-                        print("actual y2: " + str(y2))
-                        print("got here 4")
                         totalPersonsEntered += 1
-                        # to.counted = True
                         to.entered = True
                 elif directionX > 0 or directionX < 0: # moving right or moving left
                     if (centroid[0] > x1 and centroid[0] < x2 and centroid[1] > y1 and centroid[1] < y2):
-                        print("entered horizontally")
                         totalPersonsEntered += 1
                         to.entered = True
                 
             if not (to.exited):
                 if directionY > 0: # moving down
                     if (centroid[1] > y2 and centroid[0] > x1 and centroid[0] < x2):
-                        print("got here 3")
                         totalPersonsExited += 1
-                        # to.counted = Tru
                         to.exited = True
                 elif directionY < 0:
                     if (centroid[1] < y1 and centroid[0] > x1 and centroid[0] < x2):
-                        print("got here 2")
                         totalPersonsExited += 1
-                        # to.counted = True
                         to.exited = True
                 elif directionX < 0: # moving left
                     if (centroid[0] < x1 and centroid[1] > y1 and centroid[1] < y2):
-                        print("exiting horizontally")
                         totalPersonsExited += 1
                         to.exited = True
                 elif directionX > 0:
                     if (centroid[0] > x2 and centroid[1] > y1 and centroid[1] < y2):
-                        print("exiting horizontally")
                         totalPersonsExited += 1
                         to.exited = True
-
-
-
-
-                # if direction < 0 and (centroid[1] > y1 and centroid[1] < y2):
-                #     print("got here 1")
-                #     totalPersonsEntered += 1
-                #     # countOfExited += 1
-                #     to.counted = True
-
-                # # if the direction is positive (indicating the object
-                # # is moving down) AND the centroid is below the
-                # # center line, count the object
-
-                # # top of the line to below the line is entering
-                # elif direction > 0 and centroid[1] > y2:
-                #     print("got here 2")
-                #     totalPersonsExited += 1
-                #     # countOfEntered += 1
-                #     to.counted = True
-
-                # # Move up
-                # # DEEBUG: Gotta figure out exiting case
-                # if direction < 0 and centroid[1] < y1:
-                #     print("got here 3")
-                #     totalPersonsExited += 1
-                #     to.counted = True
-                # # Move down
-                # elif direction > 0 and (centroid[1] > y1 and centroid[1] < y2):
-                #     print("got here 4")
-                #     totalPersonsEntered += 1
-                #     to.counted = True
-
-                
+     
 
         # store the trackable object in our dictionary
         trackableObjects[objectID] = to
@@ -467,14 +332,6 @@ while True:
     # then update the FPS counter
     totalFrames += 1
     fps.update()
-    # newTime = datetime.datetime.now()
-    # Send Email after some interval
-    # if newTime >= endTime:
-        # thread = Thread(target=sendEmail, args=(startTime, endTime, countOfEntered, countOfExited))
-        # thread.start()
-        # startTime = datetime.datetime.now()
-        # endTime = startTime + interval
-        # countOfEntered = countOfExited = 0
 
 # stop the timer and display FPS information
 fps.stop()
@@ -485,11 +342,7 @@ print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 if writer is not None:
     writer.release()
 
-# if we are not using a video file, stop the camera video stream
-# if not args.get("input", False):
-#     vs.stop()
-
-# otherwise, release the video file pointer
+#  release the video file pointer
 # else:
 vs.release()
 
