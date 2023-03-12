@@ -17,21 +17,18 @@ from datetime import timedelta
 interval = timedelta(seconds=60)
 startTime = datetime.datetime.now()
 endTime = startTime + interval
-# For Email purpose
-# countOfEntered = 0
-# countOfExited = 0
+
 skip_frames = 10
-confidence_value = 0.4
-# See if we can get data of people from diverse phenotypes
-# Talk about future work + limitations
+confidence_value = 0.6 # 0.4 originally
+
 video_file_path = "videos/4.mov"
 output_file_path = "output/4.avi"
+
 # initialize the total number of frames processed thus far, along
 # with the total number of objects that have moved either up or down
 totalFrames = 0
 totalPersonsEntered = 0
 totalPersonsExited = 0
-
 
 # initialize the list of class labels MobileNet SSD was trained to
 # detect
@@ -44,12 +41,6 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
 print("[INFO] loading model...")
 net = cv2.dnn.readNetFromCaffe("mobilenet_ssd/MobileNetSSD_deploy.prototxt",
                                "mobilenet_ssd/MobileNetSSD_deploy.caffemodel")
-
-# if a video path was not supplied, grab a reference to the webcam
-# if not args.get("input", False):
-#     print("[INFO] starting video stream...")
-#     vs = VideoStream(src=0).start()
-#     time.sleep(2.0)
 
 # otherwise, grab a reference to the video file
 # else:
