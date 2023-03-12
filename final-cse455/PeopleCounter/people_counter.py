@@ -32,11 +32,6 @@ totalFrames = 0
 totalPersonsEntered = 0
 totalPersonsExited = 0
 
-# User input:
-# Ask if they want a box at a specific size
-# - Kid in crib for example:
-# - Which pixel you want as the center?
-# 4 end points is most easiest
 
 # initialize the list of class labels MobileNet SSD was trained to
 # detect
@@ -177,10 +172,8 @@ while True:
 
                 # if the class label is not a person, ignore it
                 if CLASSES[idx] != "person":
-                    print("did not see as person")
                     continue
-                print("detected as")
-                print(CLASSES[idx])
+                
 
                 # compute the (x, y)-coordinates of the bounding box
                 # for the object
@@ -225,8 +218,7 @@ while True:
     # use the centroid tracker to associate the (1) old object
     # centroids with (2) the newly computed object centroids
     objects = ct.update(rects)
-    # print("there are objects")
-    # print(objects.items())
+    
 
     # loop over the tracked objects
     for (objectID, centroid) in objects.items():
@@ -257,8 +249,6 @@ while True:
             # check to see if the object has been counted or not
             # if not to.counted:
             if not (to.entered):
-                print('entering')
-                print(objectID)
                 
                 if directionY < 0: # moving up
                     if (centroid[1] > y1 and centroid[1] < y2 and centroid[0] > x1 and centroid[0] < x2):
@@ -307,6 +297,7 @@ while True:
     info = [
         ("Exited Persons Count", totalPersonsExited),
         ("Entered Persons Count", totalPersonsEntered),
+        ("People Within Your Box", totalPersonsEntered - totalPersonsExited),
         ("Status", status),
     ]
 
@@ -348,6 +339,7 @@ vs.release()
 
 print("Total People Entered:", totalPersonsEntered)
 print("Total People Exited:", totalPersonsExited)
+print("People Within Your Box", totalPersonsEntered - totalPersonsExited)
 
 # close any open windows
 cv2.destroyAllWindows()
